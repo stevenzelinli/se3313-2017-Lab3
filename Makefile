@@ -1,12 +1,12 @@
 all : Writer Reader
 
-Writer: Writer.o thread.o Blockable.o Mailbox.o
-	g++ -o Writer Writer.o thread.o Blockable.o Mailbox.o -pthread -l rt
+Writer: Writer.o thread.o Blockable.o
+	g++ -o Writer Writer.o thread.o Blockable.o -pthread -l rt
 
-Reader: Reader.o thread.o Blockable.o Mailbox.o
+Reader: Reader.o thread.o Blockable.o
 	g++ -o Reader Reader.o Mailbox.o -pthread -l rt
 	
-Writer.o : Writer.cpp thread.h Blockable.h SharedObject.h  Mailbox.h Semaphore.h
+Writer.o : Writer.cpp thread.h Blockable.h SharedObject.h Semaphore.h
 	g++ -c Writer.cpp -std=c++11
 
 thread.o : thread.cpp thread.h Blockable.h
