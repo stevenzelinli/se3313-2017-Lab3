@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <string>
 
 template<class T> class Shared
 {
@@ -25,7 +26,7 @@ public:
         if (createAsOwner)
         {
             shm_unlink(fullName.c_str());   // Just in case. Clean up.
-            memoryIdentifier = shm_open(fullName.c_str(),O_RDWR | O_CREAT, 0666);
+            memoryIdentifier = shm_open(fullName.c_str(),O_RDWR | O_CREAT, 0666); // creates/opens a new or existing POSIX shared memory object
             ftruncate(memoryIdentifier,sizeof(T));
         }
         else

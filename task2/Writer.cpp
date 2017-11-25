@@ -2,21 +2,32 @@
 #include <fstream>
 #include <unistd.h>
 #include <thread>
+#include <string>
+#include <sstream>
+#include "SharedObject.h"
 
 static int intThreads = 0;
 /**
  * Writes to a file continuously using the format [thread number, 
  * number of times written to file, seconds passed since start of thread].
  * Takes parameters:
- * 	-ofstream fileStream: used for file output to txt file containing entries
  * 	-int intDelay: used to figure out the sleep time (in seconds) between each write to file
  **/
-void writeToFile(std::ofstream &fileStream, int intDelay)
+void writeToFile(int intDelay = 2)
 {
-	int intReport = 0, intSeconds = 0;
+	int intReport = 0, intSeconds = 0, _intThreads = intThreads++; // increment threads upon successful call
+	Shared<FILE> txtStream("inputFile", false);
+	FILE * _txtStream = txtStream.get();
+	_txtStream = fopen("writing.txt", "a"); // a sets the mode to append
+	std::ostringstream oss;
 	while (true)
 	{
-		fileStream << "[ " << intThreads << ", " << intReport << ", " << intSeconds << "]\n";
+		
+		// building message
+		oss << "[ " << _intThreads << ", " << intReport << ", " << intSeconds << "]\n";
+		// CRITICAL START
+		fputs(oss.str().c_str(), _txtStream);
+		// CRITICAL END
 		sleep(intDelay);
 		intSeconds += intDelay;
 		intReport++;
@@ -28,12 +39,13 @@ int main(void)
 	// variable declaration
 	char charChoice;
 	std::cout << "I am a Writer" << std::endl;
-
-	// fstream setup
-	std::ofstream txtStream;
-	txtStream.open("writing.txt", std::ofstream::out | std::ofstream::trunc); // trunc erases all contents of the file
-	txtStream << "# Writing Stream Creation #\n\n";
-
+	// will be using the FILE type instead of std::ofstream to create the shared data
+	Shared<FILE> txtStream("inputFile", true);
+	FILE * _txtStream = txtStream.get();
+	_txtStream = fopen("writing.txt", "w"); // w erases all contents of the file for writing
+	// CRITICAL START
+	fputs("# Writing Stream Creation #\n", _txtStream); // operator<< returns this, to output i need to again use the << operator
+	// CRITICAL END
 	// looping the choice
 	while (true)
 	{
@@ -51,10 +63,8 @@ int main(void)
 				int intDelay = 1;
 				std::cout << "What is the Delay time (sec) for the new thread? ";
 				std::cin >> intDelay;
-				std::thread writingThread(writeToFile, std::ref(txtStream), intDelay);
+				std::thread writingThread(writeToFile, intDelay);
 				writingThread.detach();
-				// increment threads upon successful call
-				intThreads++;
 			}
 			// if not then exit
 			else if (toupper(charChoice) == 'N')
