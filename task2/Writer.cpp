@@ -5,11 +5,13 @@
 #include <string>
 #include <sstream>
 #include "SharedObject.h"
+#include "Semaphore.h"
 
-static int intThreads = 0;
+static int intThreads = 0; // keep track of number of running writing threads
 
 /**
- * 
+ * Reporter handles writing reports to the txt file and reading lines from the txt file.
+ * It uses the C object type FILE for use with file io commands (e.g fputs() & fopen()).
  **/
 class Reporter{
 private:
@@ -31,6 +33,10 @@ public:
 	~Reporter(){
 		fputs("#Shared Object Destroyed#", writeFile);
 	}
+
+	std::string readLine(){
+		return NULL;
+	}
 };
 
 /**
@@ -42,16 +48,21 @@ public:
 void writeToFile(int intDelay = 2)
 {
 	int intReport = 0, intSeconds = 0, _intThreads = intThreads++; // increment threads upon successful call
+	// SEMAPHORES
+	Semaphore sem_Writing("writing");
+	Semaphore sem_Reading("reading");
+	// get shared object
 	Shared<Reporter> reporter("reporter");
-	//_txtStream = fopen("writing.txt", "a"); // a sets the mode to append
-	// 
 	while (true)
 	{	
 		// building message
 		std::ostringstream oss;
 		oss << "[ " << _intThreads << ", " << intReport << ", " << intSeconds << "]\n";
 		// CRITICAL START
+		sem_Writing.Wait();
 		reporter->writeReport(oss.str());
+		sem_Writing.Signal();
+		sem_Reading.Signal();
 		// CRITICAL END
 		sleep(intDelay);
 		intSeconds += intDelay;
@@ -64,11 +75,18 @@ int main(void)
 	// variable declaration
 	char charChoice;
 	std::cout << "I am a Writer" << std::endl;
+	// SEMAPHORE DECLARATION
+	Semaphore sem_Writing("writing", 1, true);
+	Semaphore sem_Reading("reading", 0, true);
 	// will be using the FILE type instead of std::ofstream to create the shared data
+	// encapsulated the FILE object in a class Reporter
 	Shared<Reporter> reporter("reporter", true);
 	reporter->initialize("writing.txt");
 	// CRITICAL START
+	sem_Writing.Wait(); // block 
 	reporter->writeReport("#Shared Object Created & Initialized#\n"); // operator<< returns this, to output i need to again use the << operator
+	sem_Writing.Signal(); // next write in queue
+	sem_Reading.Signal(); // signal that the file has been updated
 	// CRITICAL END
 	// looping the choice
 	while (true)
