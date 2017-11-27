@@ -30,7 +30,7 @@ void writeToFile(int intDelay = 2)
 		sem_Writing.Wait();
 		reporter->intThread = _intThreads;
 		reporter->intReport = intReport;
-		reporter->intSeconds = intSeconds;
+		reporter->intSecond = intSeconds;
 		sem_Reading.Signal();
 		sem_Writing.Signal();
 		// CRITICAL END

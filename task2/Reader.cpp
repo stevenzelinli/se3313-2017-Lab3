@@ -20,7 +20,7 @@ int main(void)
 	while(true){
 		// CRITICAL START
 		sem_Reading.Wait();
-		std::cout << "[ " << reporter->intThread << ", " << reporter->intReport << ", " << reporter->intSeconds << " ]\n";
+		std::cout << "[ " << reporter->intThread << ", " << reporter->intReport << ", " << reporter->intSecond << " ]\n";
 		// CRITICAL END
 	}
 }
