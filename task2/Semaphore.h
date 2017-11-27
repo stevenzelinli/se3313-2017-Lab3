@@ -18,7 +18,7 @@ public:
         if (createAsOwner)
         {
             sem_unlink(fullName.c_str()); // Just in case
-            pSem=sem_open(fullName.c_str(), O_CREAT, 0666,initialState);
+            pSem=sem_open(fullName.c_str(), O_CREAT, 0666, initialState);
         }
         else
             pSem=sem_open(fullName.c_str(),0);

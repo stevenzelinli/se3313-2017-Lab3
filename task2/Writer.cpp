@@ -6,38 +6,9 @@
 #include <sstream>
 #include "SharedObject.h"
 #include "Semaphore.h"
+#include "Reporter.h"
 
 static int intThreads = 0; // keep track of number of running writing threads
-
-/**
- * Reporter handles writing reports to the txt file and reading lines from the txt file.
- * It uses the C object type FILE for use with file io commands (e.g fputs() & fopen()).
- **/
-class Reporter{
-private:
-	FILE * writeFile;
-public:
-	void initialize(const std::string strFilePath){
-		writeFile = fopen(strFilePath.c_str(), "w+");
-		if(writeFile == NULL) 
-		{
-			std::cout << "Unable to open file\n Check path ...\n";
-			return;
-		}
-	}
-
-	void writeReport(const std::string strReport){
-		fputs(strReport.c_str(), writeFile);
-	}
-
-	~Reporter(){
-		fputs("#Shared Object Destroyed#", writeFile);
-	}
-
-	std::string readLine(){
-		return NULL;
-	}
-};
 
 /**
  * Writes to a file continuously using the format [thread number, 

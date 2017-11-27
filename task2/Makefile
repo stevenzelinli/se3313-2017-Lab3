@@ -6,7 +6,7 @@ Writer: Writer.o thread.o Blockable.o
 Reader: Reader.o thread.o Blockable.o
 	g++ -g -o Reader Reader.o -pthread -l rt
 	
-Writer.o : Writer.cpp thread.h Blockable.h SharedObject.h Semaphore.h
+Writer.o : Writer.cpp thread.h Reporter.h Blockable.h SharedObject.h Semaphore.h
 	g++ -g -c Writer.cpp -std=c++11
 
 thread.o : thread.cpp thread.h Blockable.h
@@ -15,5 +15,5 @@ thread.o : thread.cpp thread.h Blockable.h
 Blockable.o : Blockable.cpp Blockable.h
 	g++ -g -c Blockable.cpp -std=c++11
 	
-Reader.o : Reader.cpp SharedObject.h Semaphore.h
+Reader.o : Reader.cpp Reporter.h SharedObject.h Semaphore.h
 	g++ -g -c Reader.cpp -std=c++11 
