@@ -6,7 +6,7 @@
 #include <sstream>
 #include "SharedObject.h"
 #include "Semaphore.h"
-#include "Reporter.h"
+#include "Report.h"
 
 static int intThreads = 0; // keep track of number of running writing threads
 
@@ -23,17 +23,16 @@ void writeToFile(int intDelay = 2)
 	Semaphore sem_Writing("writing");
 	Semaphore sem_Reading("reading");
 	// get shared object
-	Shared<Reporter> reporter("reporter");
+	Shared<Report> reporter("reporter");
 	while (true)
 	{	
-		// building message
-		std::ostringstream oss;
-		oss << "[ " << _intThreads << ", " << intReport << ", " << intSeconds << "]\n";
 		// CRITICAL START
 		sem_Writing.Wait();
-		reporter->writeReport(oss.str());
-		sem_Writing.Signal();
+		reporter->intThread = _intThreads;
+		reporter->intReport = intReport;
+		reporter->intSeconds = intSeconds;
 		sem_Reading.Signal();
+		sem_Writing.Signal();
 		// CRITICAL END
 		sleep(intDelay);
 		intSeconds += intDelay;
@@ -51,14 +50,7 @@ int main(void)
 	Semaphore sem_Reading("reading", 0, true);
 	// will be using the FILE type instead of std::ofstream to create the shared data
 	// encapsulated the FILE object in a class Reporter
-	Shared<Reporter> reporter("reporter", true);
-	reporter->initialize("writing.txt");
-	// CRITICAL START
-	sem_Writing.Wait(); // block 
-	reporter->writeReport("#Shared Object Created & Initialized#\n"); // operator<< returns this, to output i need to again use the << operator
-	sem_Writing.Signal(); // next write in queue
-	sem_Reading.Signal(); // signal that the file has been updated
-	// CRITICAL END
+	Shared<Report> reporter("reporter", true);
 	// looping the choice
 	while (true)
 	{

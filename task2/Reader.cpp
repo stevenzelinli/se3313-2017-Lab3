@@ -1,10 +1,12 @@
-#include <unistd.h>
 #include <iostream>
-#include <string>
 #include <fstream>
+#include <unistd.h>
+#include <thread>
+#include <string>
+#include <sstream>
 #include "SharedObject.h"
 #include "Semaphore.h"
-#include "Reporter.h"
+#include "Report.h"
 
 int main(void)
 {
@@ -12,14 +14,13 @@ int main(void)
 	// SEMAPHORE
 	Semaphore sem_Reading("reading");
 	// get shared object
-	Shared<Reporter> reporter("reporter", false);
+	Shared<Report> reporter("reporter");
+	// FILE * readFile = fopen("writing.txt", "r");
 	// referencing
 	while(true){
 		// CRITICAL START
 		sem_Reading.Wait();
-		fflush(reporter->writeFile);
-		std::string strMessage = reporter->readLine();
-		std::cout << strMessage;
+		std::cout << "[ " << reporter->intThread << ", " << reporter->intReport << ", " << reporter->intSeconds << " ]\n";
 		// CRITICAL END
 	}
 }
